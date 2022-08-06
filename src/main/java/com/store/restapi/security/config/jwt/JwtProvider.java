@@ -5,9 +5,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.store.restapi.security.domain.model.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -28,23 +28,21 @@ public class JwtProvider {
     }
 
     // Generate token --------------------------------------------------------------------------------------------------
-    public String getAccessToken(UserDetailsImpl user) {
+    public String getAccessToken(UserDetails user) {
 
         return getToken(getAlgorithmAccess(), user, jwtConfig.getTokenAccessExpirationAfterDuration().toMillis());
     }
 
-    public String getRefreshToken(UserDetailsImpl user) {
+    public String getRefreshToken(UserDetails user) {
         return getToken(getAlgorithmRefresh(), user, jwtConfig.getTokenRefreshExpirationAfterDuration().toMillis());
     }
 
-    private String getToken(Algorithm algorithm, UserDetailsImpl user, Long expiresTime) {
+    private String getToken(Algorithm algorithm, UserDetails user, Long expiresTime) {
         return JWT.create()
                 .withSubject(user.getUsername())
                 .withIssuer(jwtConfig.getIssuer())
-                .withJWTId(user.getUserId().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiresTime))
                 .withClaim("role", user.getAuthorities().iterator().next().toString())
-                .withClaim("username", user.getFullUserName())
                 .sign(algorithm);
     }
 

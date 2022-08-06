@@ -13,35 +13,20 @@ import java.util.Collection;
 @NoArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
-    private Long userId;
-    private String fullUserName;
-
     private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
     private boolean enabled;
 
     public UserDetailsImpl(
-            Long userId,
-            String fullUserName,
             String username,
             String password,
             Collection<? extends GrantedAuthority> authorities,
             boolean enabled) {
-        this.userId = userId;
-        this.fullUserName = fullUserName;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.enabled = enabled;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public String getFullUserName() {
-        return fullUserName;
     }
 
     @Override
