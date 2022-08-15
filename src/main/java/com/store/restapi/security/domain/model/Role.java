@@ -7,10 +7,9 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "users_role")
+@Table(name = "accounts_role")
 @Getter
 @Setter
-
 @RequiredArgsConstructor
 public class Role {
     @Id

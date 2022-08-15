@@ -1,8 +1,8 @@
 package com.store.restapi;
 
 import com.store.restapi.security.domain.model.Role;
-import com.store.restapi.security.domain.model.User;
-import com.store.restapi.security.service.UserService;
+import com.store.restapi.security.domain.model.Account;
+import com.store.restapi.security.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,17 +20,17 @@ public class RestApiApplication {
 	}
 
 	@Bean
-	CommandLineRunner runner(UserService userService) {
+	CommandLineRunner runner(AccountService userService) {
 		userService.saveRole(new Role("ROLE_ADMIN", "Администратор"));
 		userService.saveRole(new Role("ROLE_STAFF", "Сотрудник"));
 		userService.saveRole(new Role("ROLE_USER", "Пользователь"));
 
-		User user = new User("user@mail.net", "password", "user_name");
+		Account user = new Account("user@mail.net", "password", "Ivanov Ivan");
 		user.setEnabled(true);
-		userService.saveUser(user);
+		userService.createUser(user);
 		user = userService.addRoleToUser(user.getEmail(), "ROLE_STAFF");
 
-		User finalUser = user;
+		Account finalUser = user;
 		log.info("User password {}", finalUser.getPassword());
 		return args -> {
 //			userService.saveUser(finalUser);

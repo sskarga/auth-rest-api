@@ -1,9 +1,10 @@
 package com.store.restapi.security.service.impl;
 
-import com.store.restapi.security.domain.model.User;
+import com.store.restapi.security.domain.model.Account;
 import com.store.restapi.security.domain.model.UserDetailsImpl;
-import com.store.restapi.security.domain.repository.UserRepository;
+import com.store.restapi.security.domain.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,23 +15,17 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository repository;
+    private final AccountRepository repository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = repository.findByEmail(username)
+        log.info("UserDetails load by username: {}", username);
+        Account user = repository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь с таким именем не найден: " + username));
-        return toUserDetails(user);
+        return new UserDetailsImpl(user);
     }
 
-    private UserDetailsImpl toUserDetails(User user) {
-        return UserDetailsImpl.builder()
-                .username(user.getEmail()) // login
-                .password(user.getPassword()) // password
-                .enabled(user.getEnabled())
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName())))
-                .build();
-    }
 }

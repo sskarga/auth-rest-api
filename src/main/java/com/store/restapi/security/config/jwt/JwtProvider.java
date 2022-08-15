@@ -5,6 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.store.restapi.security.domain.model.AccountToken;
+import com.store.restapi.security.domain.model.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,22 +30,24 @@ public class JwtProvider {
     }
 
     // Generate token --------------------------------------------------------------------------------------------------
-    public String getAccessToken(UserDetails user) {
-
-        return getToken(getAlgorithmAccess(), user, jwtConfig.getTokenAccessExpirationAfterDuration().toMillis());
-    }
-
-    public String getRefreshToken(UserDetails user) {
-        return getToken(getAlgorithmRefresh(), user, jwtConfig.getTokenRefreshExpirationAfterDuration().toMillis());
-    }
-
-    private String getToken(Algorithm algorithm, UserDetails user, Long expiresTime) {
+    public String getAccessToken(UserDetailsImpl user) {
         return JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(user.getFullUserName())
                 .withIssuer(jwtConfig.getIssuer())
-                .withExpiresAt(new Date(System.currentTimeMillis() + expiresTime))
+                .withExpiresAt(
+                        new Date(System.currentTimeMillis() + jwtConfig.getTokenAccessExpirationAfterDuration().toMillis())
+                )
                 .withClaim("role", user.getAuthorities().iterator().next().toString())
-                .sign(algorithm);
+                .withClaim("id", user.getUserId())
+                .sign(getAlgorithmAccess());
+    }
+
+    public String getRefreshToken(String token) {
+        return JWT.create()
+                .withJWTId(token)
+                .withIssuer(jwtConfig.getIssuer())
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtConfig.getTokenRefreshExpirationAfterDuration().toMillis()))
+                .sign(getAlgorithmRefresh());
     }
 
     // Verify token ----------------------------------------------------------------------------------------------------

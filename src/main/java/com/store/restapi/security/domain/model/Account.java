@@ -5,21 +5,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "accounts")
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class User {
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,7 +31,10 @@ public class User {
     private String username;
 
     @Column(name="is_enabled", columnDefinition = "boolean default false")
-    private Boolean enabled;
+    private Boolean enabled = false;
+
+    @Column(name="is_locked", columnDefinition = "boolean default false")
+    private Boolean locked = false;
 
     @Column(name="created_on")
     @CreationTimestamp
@@ -48,7 +48,7 @@ public class User {
     @JoinColumn(name="role_id")
     private Role role;
 
-    public User(String email, String password, String username) {
+    public Account(String email, String password, String username) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -58,7 +58,7 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        User user = (User) o;
+        Account user = (Account) o;
         return id != null && Objects.equals(id, user.id);
     }
 

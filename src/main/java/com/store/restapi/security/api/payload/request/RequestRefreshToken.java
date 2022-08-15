@@ -1,4 +1,4 @@
-package com.store.restapi.security.api.dto;
+package com.store.restapi.security.api.payload.request;
 
 import javax.validation.constraints.NotBlank;
 

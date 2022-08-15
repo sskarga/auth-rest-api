@@ -2,12 +2,14 @@ package com.store.restapi.security.config.jwt;
 
 import com.store.restapi.security.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -19,6 +21,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
@@ -32,13 +35,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith(jwtConfig.getPrefix())) {
+        final String token = parseJwtToken(request);
 
-            final String token = header.substring(jwtConfig.getPrefix().length());
+        if (token != null) {
+            log.info("Find token");
             final Optional<UserDetails> userDetails = jwtTokenService.validateTokenAndGetUser(token);
 
             if (userDetails.isPresent()) {
+                log.info("Token valid: {}", userDetails.get().toString());
                 final UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails.get(),
@@ -50,5 +54,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String parseJwtToken(HttpServletRequest request) {
+        String headerAuth = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith(jwtConfig.getPrefix())){
+            return headerAuth.substring(jwtConfig.getPrefix().length());
+        }
+
+        return null;
     }
 }
