@@ -1,6 +1,6 @@
 package com.store.restapi.advice;
 
-import com.store.restapi.advice.apiError.ApiError;
+import com.store.restapi.advice.api_error.ApiError;
 import com.store.restapi.advice.exception.CustomApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;

@@ -1,7 +1,6 @@
 package com.store.restapi.security.config;
 
-import com.store.restapi.security.config.jwt.AuthEntryPointJwt;
-import com.store.restapi.security.config.jwt.JwtRequestFilter;
+import com.store.restapi.security.jwt.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
