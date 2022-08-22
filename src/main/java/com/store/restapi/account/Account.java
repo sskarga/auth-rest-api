@@ -1,4 +1,4 @@
-package com.store.restapi.account.domain;
+package com.store.restapi.account;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +69,7 @@ public class Account {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Account{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +

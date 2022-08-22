@@ -26,7 +26,6 @@ public class PinCode {
     private CodeType codeType;
 
     @Column(name="created_on")
-    @CreationTimestamp
     private LocalDateTime createdOn;
 
     @Column(name="expires_at", nullable = false)
@@ -36,6 +35,7 @@ public class PinCode {
         this.accountId = accountId;
         this.code = code;
         this.codeType = codeType;
+        this.createdOn = LocalDateTime.now();
         this.expiresAt = expiresAt;
     }
 

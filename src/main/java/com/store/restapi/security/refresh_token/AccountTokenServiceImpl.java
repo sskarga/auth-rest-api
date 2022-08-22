@@ -4,7 +4,6 @@ import com.store.restapi.security.jwt.JwtConfig;
 import com.store.restapi.security.user_details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -53,9 +52,7 @@ public class AccountTokenServiceImpl implements AccountTokenService {
     }
 
     @Override
-    @Scheduled(cron = "@daily")
     public void deleteExpiresToken() {
-        log.info("Run delete all expired account refresh token");
         LocalDateTime expires = LocalDateTime.now().plusMinutes(1);
         accountTokenRepository.deleteByExpiresAtLessThan(expires);
     }

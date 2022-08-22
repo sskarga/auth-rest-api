@@ -1,7 +1,6 @@
 package com.store.restapi.email;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -20,14 +19,15 @@ public class DefaultEmailService implements EmailService{
     private final SpringTemplateEngine templateEngine;
 
     @Override
-    public void sendMail(AbstractEmailContext email) throws MessagingException {
+//    @Async
+    public void sendMail(EmailContext email) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message,
                 MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                 StandardCharsets.UTF_8.name());
 
         Context context = new Context();
-        context.setVariables(email.getContext());
+        context.setVariables(email.getTemplateContext());
 
         String emailContent = templateEngine.process(email.getTemplateLocation(), context);
 

@@ -1,55 +1,18 @@
 package com.store.restapi.pincode;
 
-import com.store.restapi.account.domain.Account;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.store.restapi.account.Account;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class PinCodeService {
+public interface PinCodeService {
+    PinCode createPinCode(Account account, CodeType codeType);
 
-    private final PinCodeRepository pinCodeRepository;
+    Optional<PinCode> findByAccount(Account account);
 
-    public PinCode createPinCode(Account account, CodeType codeType) {
-        return pinCodeRepository.save(
-                new PinCode(
-                        account.getId(),
-                        PinCodeGenerator.getPinCode(),
-                        codeType,
-                        LocalDateTime.now().plusHours(2) // Todo: To config file
-                )
-        );
-    }
+    void deleteByAccount(Account account);
 
-    public Optional<PinCode> findByAccount(Account account) {
-        Optional<PinCode> pinCode = pinCodeRepository.findById(account.getId());
-        if (pinCode.isPresent()) {
-            if (pinCode.get().getExpiresAt().isBefore(LocalDateTime.now())) {
-                this.deleteByAccount(account);
-                return Optional.empty();
-            }
-        }
-        return pinCode;
-    }
+    void deleteById(Long id);
 
-    public void deleteByAccount(Account account) {
-        pinCodeRepository.deleteById(account.getId());
-    }
-
-    public void deleteById(Long id) {
-        pinCodeRepository.deleteById(id);
-    }
-
-    @Scheduled(cron = "@daily")
-    public void deleteAllExpired() {
-        log.info("Run delete all expired pin code");
-        pinCodeRepository.deleteByExpiresAtLessThan(LocalDateTime.now().plusMinutes(1));
-    }
-
+    void deleteAllExpired();
 }

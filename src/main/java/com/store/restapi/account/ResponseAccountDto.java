@@ -1,4 +1,4 @@
-package com.store.restapi.account.dto;
+package com.store.restapi.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.store.restapi.account.domain;
+package com.store.restapi.account;
 
 import lombok.*;
 import org.hibernate.Hibernate;

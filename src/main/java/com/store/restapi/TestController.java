@@ -1,4 +1,4 @@
-package com.store.restapi.security.api.controller;
+package com.store.restapi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.store.restapi.security.user_details;
 
-import com.store.restapi.account.domain.Account;
-import com.store.restapi.account.domain.AccountRepository;
+import com.store.restapi.account.Account;
+import com.store.restapi.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;

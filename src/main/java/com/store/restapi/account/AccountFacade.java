@@ -1,7 +1,5 @@
-package com.store.restapi.account.facade;
+package com.store.restapi.account;
 
-import com.store.restapi.account.dto.ResponseAccountDto;
-import com.store.restapi.account.domain.Account;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 

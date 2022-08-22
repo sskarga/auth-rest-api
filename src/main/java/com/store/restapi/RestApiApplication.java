@@ -1,19 +1,19 @@
 package com.store.restapi;
 
-import com.store.restapi.account.domain.Role;
-import com.store.restapi.account.domain.Account;
-import com.store.restapi.account.service.AccountService;
+import com.store.restapi.account.Role;
+import com.store.restapi.account.Account;
+import com.store.restapi.account.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@EnableAsync
 @Slf4j
 public class RestApiApplication {
 

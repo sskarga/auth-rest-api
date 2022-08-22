@@ -3,5 +3,5 @@ package com.store.restapi.email;
 import javax.mail.MessagingException;
 
 public interface EmailService {
-    public void sendMail(AbstractEmailContext email) throws MessagingException;
+    public void sendMail(EmailContext email) throws MessagingException;
 }

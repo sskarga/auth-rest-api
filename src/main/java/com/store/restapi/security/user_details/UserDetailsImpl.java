@@ -1,6 +1,6 @@
 package com.store.restapi.security.user_details;
 
-import com.store.restapi.account.domain.Account;
+import com.store.restapi.account.Account;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

@@ -1,10 +1,10 @@
-package com.store.restapi.account.controller;
+package com.store.restapi.account;
 
-import com.store.restapi.account.dto.ResponseAccountDto;
-import com.store.restapi.account.facade.AccountFacade;
-import com.store.restapi.account.domain.Account;
+import com.store.restapi.account.ResponseAccountDto;
+import com.store.restapi.account.AccountFacade;
+import com.store.restapi.account.Account;
 import com.store.restapi.security.user_details.UserDetailsImpl;
-import com.store.restapi.account.service.AccountService;
+import com.store.restapi.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

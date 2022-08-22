@@ -1,7 +1,4 @@
-package com.store.restapi.account.service;
-
-import com.store.restapi.account.domain.Role;
-import com.store.restapi.account.domain.Account;
+package com.store.restapi.account;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +10,8 @@ public interface AccountService {
     Optional<Account> findAccountByEmail(String email);
 
     Account createAccount(Account user);
+
+    Account updateAccountAndPassword(Account account);
 
     Account updateAccount(Account user);
 

@@ -1,10 +1,6 @@
-package com.store.restapi.account.service;
+package com.store.restapi.account;
 
 import com.store.restapi.advice.exception.CustomApiException;
-import com.store.restapi.account.domain.Role;
-import com.store.restapi.account.domain.Account;
-import com.store.restapi.account.domain.RoleRepository;
-import com.store.restapi.account.domain.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,22 +58,32 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account updateAccount(Account account) {
-        Account userOld = accountRepository.findById(account.getId())
+    public Account updateAccountAndPassword(Account account) {
+        Account accountOld = accountRepository.findById(account.getId())
                 .orElseThrow(() ->
                         new EntityNotFoundException(String.format(ACCOUNT_NOT_FIND_MSG, account.getId().toString())));
-        account.setCreatedOn(userOld.getCreatedOn());
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setCreatedOn(accountOld.getCreatedOn());
+        return  accountRepository.save(account);
+    }
+
+    @Override
+    public Account updateAccount(Account account) {
+        Account accountOld = accountRepository.findById(account.getId())
+                .orElseThrow(() ->
+                        new EntityNotFoundException(String.format(ACCOUNT_NOT_FIND_MSG, account.getId().toString())));
+        account.setCreatedOn(accountOld.getCreatedOn());
         return accountRepository.save(account);
 
     }
 
     @Override
     public Account deleteAccount(Long id) {
-        Account user = accountRepository.findById(id)
+        Account account = accountRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException(String.format(ACCOUNT_NOT_FIND_MSG, id)));
-        accountRepository.delete(user);
-        return user;
+        accountRepository.delete(account);
+        return account;
     }
 
     @Override
