@@ -11,18 +11,20 @@ import com.store.restapi.security.refresh_token.AccountTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class RegistrationServiceImpl implements RegistrationService {
 
+    public static final String ACCOUNT_IS_LOCKED_MSG = "Аккаунт заблокирован.";
+    public static final String CODE_INVALID_ACCOUNT_LOCKED_MSG = "Неверный код. Аккаунт заблокирован.";
+    public static final String CODE_INVALID = "Неверный код. Осталось попыток %d до блокировки аккаунта.";
+    public static final String ACCOUNT_IS_ACTIVATED_MSG = "Аккаунт уже активирован.";
+    public static final String ACCOUNT_NOT_ACTIVATED_MSG = "Аккаунт не активирован.";
     private final AccountService accountService;
     private final PinCodeService pinCodeService;
     private final MessageSenderService messageSenderService;
@@ -30,24 +32,32 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private Account getAccount(String email) {
         Account account = accountService.findAccountByEmail(email).orElseThrow(EntityNotFoundException::new);
-        if (account.getLocked()) throw new CustomApiException("Аккаунт заблокирован.");
+        if (account.getLocked()) throw new CustomApiException(ACCOUNT_IS_LOCKED_MSG);
         return account;
     }
 
     private PinCode getPinCode(Integer checkPinCode, Account account) {
         PinCode pinCode = pinCodeService.findByAccount(account).orElseThrow(EntityNotFoundException::new);
 
-        if (pinCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            pinCodeService.deleteByAccount(account);
-            throw new CustomApiException("Срок действия пинкода истек.");
-        }
-
         if(!pinCode.getCode().equals(checkPinCode)) {
-            throw new CustomApiException("Неверный пинкод.");
+            Integer residueAttempts = pinCodeService.updateResidueAttempts(account);
+            if (residueAttempts <= 0) {
+                // Account block
+                resetAccountTokens(account);
+                account.setLocked(true);
+                accountService.updateAccount(account);
+                throw new CustomApiException(CODE_INVALID_ACCOUNT_LOCKED_MSG);
+            }
+            throw new CustomApiException(String.format(CODE_INVALID, residueAttempts));
         }
         return pinCode;
     }
-    
+
+    private void resetAccountTokens(Account account) {
+        pinCodeService.deleteByAccount(account);
+        accountTokenService.deleteByAccountId(account.getId());
+    }
+
     @Override
     public void createAccount(Account newAccount) {
         Account account = accountService.createAccount(newAccount);
@@ -65,7 +75,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public void ReActivateAccount(String email) {
         Account account = getAccount(email);
-        if (account.getEnabled()) throw new CustomApiException("Аккаунт уже активирован.");
+        if (account.getEnabled()) throw new CustomApiException(ACCOUNT_IS_ACTIVATED_MSG);
 
         PinCode pinCode = pinCodeService.createPinCode(account, CodeType.CODE_ACTIVATE);
         log.info("Re activate pin code: {}",pinCode.getCode());
@@ -81,7 +91,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public void activateAccount(String email, Integer checkPinCode) {
         Account account = getAccount(email);
-        if (account.getEnabled()) throw new CustomApiException("Аккаунт уже активирован.");
+        if (account.getEnabled()) throw new CustomApiException(ACCOUNT_IS_ACTIVATED_MSG);
 
         PinCode pinCode = getPinCode(checkPinCode, account);
         if (!pinCode.getCodeType().equals(CodeType.CODE_ACTIVATE)) throw new EntityNotFoundException();
@@ -101,7 +111,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public void resetPassword(String email) {
         Account account = getAccount(email);
-        if (!account.getEnabled()) throw new CustomApiException("Аккаунт не активирован.");
+        if (!account.getEnabled()) throw new CustomApiException(ACCOUNT_NOT_ACTIVATED_MSG);
 
         PinCode pinCode = pinCodeService.createPinCode(account, CodeType.CODE_PASSWORD_RESET);
         log.info("Reset pin code: {}",pinCode.getCode());
@@ -123,8 +133,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         account.setPassword(newPassword);
         accountService.updateAccountAndPassword(account);
-        pinCodeService.deleteByAccount(account);
-        accountTokenService.deleteByAccountId(account.getId());
+        resetAccountTokens(account);
 
         try {
             messageSenderService.sendPasswordChanges(account);

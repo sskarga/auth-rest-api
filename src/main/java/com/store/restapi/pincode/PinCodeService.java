@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface PinCodeService {
     PinCode createPinCode(Account account, CodeType codeType);
 
+    Integer updateResidueAttempts(Account account);
+
     Optional<PinCode> findByAccount(Account account);
 
     void deleteByAccount(Account account);
