@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.2'
 	id 'io.spring.dependency-management' version '1.0.12.RELEASE'
 	id 'java'
+	id "org.sonarqube" version "3.4.0.2513"
 }
 
 group = 'com.store'
@@ -37,6 +38,12 @@ dependencies {
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+sonarqube {
+	properties {
+		property "sonar.sourceEncoding", "UTF-8"
+	}
 }
 
 tasks.named('test') {

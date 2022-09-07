@@ -1,6 +1,6 @@
 package com.store.restapi.account;
 
-import com.store.restapi.advice.exception.CustomApiException;
+import com.store.restapi.advice.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -17,7 +19,7 @@ import java.util.Optional;
 @Transactional
 public class AccountServiceImpl implements AccountService {
 
-    private final static String ACCOUNT_NOT_FIND_MSG = "Account with id %s not find.";
+    public static final String ACCOUNT_NOT_FIND_MSG = "Account with id %s not find.";
     public static final String ACCOUNT_ALREADY_MSG = "Account already";
 
     private final AccountRepository accountRepository;
@@ -42,8 +44,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account createAccount(Account account) {
 
-        if (accountRepository.findByEmail(account.getEmail()).isPresent()) {
-            throw new CustomApiException(ACCOUNT_ALREADY_MSG);
+        if(Objects.isNull(account)) throw new BadRequestException();
+        if(account.getEmail() == null || account.getPassword() == null) throw new BadRequestException();
+
+        boolean exist = accountRepository.existsByEmail(account.getEmail());
+
+        if (exist) {
+            throw new BadRequestException(ACCOUNT_ALREADY_MSG);
         }
 
         account.setPassword(passwordEncoder.encode(account.getPassword()));

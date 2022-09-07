@@ -1,6 +1,7 @@
 package com.store.restapi.advice;
 
 import com.store.restapi.advice.api_error.ApiError;
+import com.store.restapi.advice.exception.BadRequestException;
 import com.store.restapi.advice.exception.CustomApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -38,11 +40,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      * @param ex    CustomApiException
      * @return the ApiError object
      */
-    @ExceptionHandler(CustomApiException.class)
-    protected ResponseEntity<Object> handleCustomApiException (CustomApiException ex)
+    @ExceptionHandler({CustomApiException.class, BadRequestException.class})
+    protected ResponseEntity<Object> handleCustomApiException (RuntimeException ex)
     {
-        return buildResponseEntity(new ApiError(BAD_REQUEST, ex.getMessage()));
+        return buildResponseEntity(new ApiError(BAD_REQUEST, ex));
     }
+
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<Object> handleIllegalArgumentException (IllegalArgumentException ex)
+    {
+        return buildResponseEntity(new ApiError(BAD_REQUEST, ex));
+    }
+
 
     /**
      * Handle MissingServletRequestParameterException. Triggered when a 'required' request parameter is missing.
@@ -189,14 +199,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handle javax.persistence.EntityNotFoundException
-     */
-//    @ExceptionHandler(javax.persistence.EntityNotFoundException.class)
-//    protected ResponseEntity<Object> handleEntityNotFound(javax.persistence.EntityNotFoundException ex) {
-//        return buildResponseEntity(new ApiError(NOT_FOUND, ex));
-//    }
-
-    /**
      * Handle DataIntegrityViolationException, inspects the cause for different DB causes.
      *
      * @param ex the DataIntegrityViolationException
@@ -221,7 +223,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
                                                                       WebRequest request) {
         ApiError apiError = new ApiError(BAD_REQUEST);
-        apiError.setMessage(String.format("The parameter '%s' of value '%s' could not be converted to type '%s'", ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName()));
+        apiError.setMessage(
+                String.format(
+                        "The parameter '%s' of value '%s' could not be converted to type '%s'",
+                        ex.getName(),
+                        ex.getValue(),
+                        ex.getRequiredType().getSimpleName()));
         apiError.setDescription(ex.getMessage());
         return buildResponseEntity(apiError);
     }

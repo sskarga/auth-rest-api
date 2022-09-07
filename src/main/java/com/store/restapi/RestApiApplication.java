@@ -34,9 +34,7 @@ public class RestApiApplication {
 
 		Account finalUser = account;
 		log.info("User password {}", finalUser.getPassword());
-		return args -> {
-//			userService.saveUser(finalUser);
-		};
+		return args -> {};
 	}
 
 }

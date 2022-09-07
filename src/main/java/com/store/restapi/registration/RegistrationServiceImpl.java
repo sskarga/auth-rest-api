@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     public static final String CODE_INVALID = "Неверный код. Осталось попыток %d до блокировки аккаунта.";
     public static final String ACCOUNT_IS_ACTIVATED_MSG = "Аккаунт уже активирован.";
     public static final String ACCOUNT_NOT_ACTIVATED_MSG = "Аккаунт не активирован.";
+    public static final String ERROR_SEND_MAIL_MSG = "Ошибка отправки email";
     private final AccountService accountService;
     private final PinCodeService pinCodeService;
     private final MessageSenderService messageSenderService;
@@ -54,8 +56,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     private void resetAccountTokens(Account account) {
-        pinCodeService.deleteByAccount(account);
-        accountTokenService.deleteByAccountId(account.getId());
+        if (!Objects.isNull(account)) {
+            pinCodeService.deleteByAccount(account);
+            accountTokenService.deleteByAccountId(account.getId());
+        }
     }
 
     @Override
@@ -68,7 +72,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             messageSenderService.sendActivateMessage(account,pinCode);
         } catch (MessagingException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new CustomApiException(ERROR_SEND_MAIL_MSG, e);
         }
     }
 
@@ -84,7 +88,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             messageSenderService.sendActivateMessage(account,pinCode);
         } catch (MessagingException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new CustomApiException(ERROR_SEND_MAIL_MSG, e);
         }
     }
 
@@ -104,7 +108,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             messageSenderService.sendWelcomeMessage(account);
         } catch (MessagingException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new CustomApiException(ERROR_SEND_MAIL_MSG, e);
         }
     }
 
@@ -120,7 +124,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             messageSenderService.sendResetMessage(account,pinCode);
         } catch (MessagingException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new CustomApiException(ERROR_SEND_MAIL_MSG, e);
         }
     }
 
@@ -139,7 +143,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             messageSenderService.sendPasswordChanges(account);
         } catch (MessagingException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new CustomApiException(ERROR_SEND_MAIL_MSG, e);
         }
     }
 

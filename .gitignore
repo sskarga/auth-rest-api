@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### Sonar ###
+.scannerwork
+sonar-project.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -35,3 +39,4 @@ out/
 
 ### VS Code ###
 .vscode/
+
